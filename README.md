@@ -1,0 +1,1 @@
+# strider-vagrant
