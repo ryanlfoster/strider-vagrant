@@ -1,0 +1,26 @@
+---
+- name: install nodejs and mongo packages 
+  yum: name={{ item }} state=present
+  with_items:
+    - nodejs
+    - npm
+    - mongodb-server
+
+- name: ensure MongDB is enabled to start at boot time
+  service: name=mongod state=started enabled=yes
+
+- name: enable strider on the firewall 
+  firewalld: port=3000/tcp permanent=true state=enabled
+  notify: restart firewalld
+
+- name: create strider user account
+  user: name=strider home=/dev/null shell=/sbin/nologin
+
+- name: create strider home directory
+  file: path=/home/strider state=directory owner=root group=root mode=0755
+
+- name: checkout strider
+  git: repo=https://github.com/Strider-CD/strider.git dest=/home/strider/strider
+
+- name: install strider
+  command: sudo npm install chdir=/home/strider/strider

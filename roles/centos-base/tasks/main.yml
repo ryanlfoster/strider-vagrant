@@ -1,0 +1,16 @@
+---
+- name: install EPEL repo
+  yum: name=https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm state=present
+
+- name: install common packages 
+  yum: name={{ item }} state=present
+  with_items:
+    - tar
+    - bzip2
+    - zip
+    - unzip
+    - htop
+    - telnet
+    - psmisc
+    - git
+    

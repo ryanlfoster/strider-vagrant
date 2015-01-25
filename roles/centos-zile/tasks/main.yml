@@ -1,0 +1,13 @@
+---
+# Install zile editor (lightweight emacs)
+- name: install libgc package
+  yum: name=gc state=present
+
+- name: copy zile executable
+  copy: src=zile dest=/usr/bin/ owner=root group=root mode=755
+
+- name: copy zile manual
+  copy: src=zile.1.gz dest=/usr/share/man/man1/ owner=root group=root mode=644
+
+- name: copy zile sample config
+  copy: src=dotzile.sample dest=/usr/share/doc/zile/ owner=root group=root mode=644

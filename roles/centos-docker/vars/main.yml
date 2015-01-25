@@ -1,0 +1,4 @@
+---
+# Docker settings
+docker_version: 1.4.1
+docker_sha256sum: b4fb75be087eafe6cda26038a045854ab2d497adad9276a45c37d7d55da764fc

@@ -1,0 +1,43 @@
+---
+# Configure Docker
+- name: enable docker in the firewall 
+  firewalld: port=2375/tcp permanent=true state=enabled
+  notify: restart firewalld
+
+- name: install Docker package
+  yum: name=docker state=present
+
+- name: fix docker systemd service
+  copy: src=usr/lib/systemd/system/docker.service
+        dest=/usr/lib/systemd/system/docker.service
+        owner=root group=root mode=0644
+  notify: restart docker
+
+- name: add vagrant user to docker group
+  user: name=vagrant groups=docker append=true
+
+- name: download latest Docker binary
+  get_url: url=https://get.docker.io/builds/Linux/x86_64/docker-{{ docker_version }} dest=/root/docker-{{ docker_version }} sha256sum={{ docker_sha256sum }} mode=0755
+
+- name: check if any docker processes are running  
+  command: ps aux
+  register: ps_aux
+
+- name: kill all running docker processes  
+  command: killall docker
+  when: ps_aux.stdout.find('/usr/bin/docker') != -1
+
+- name: replace docker binary with the latest version
+  command: cp /root/docker-{{ docker_version }} /usr/bin/docker
+  notify: restart docker
+
+- name: ensure Docker is enabled to start at boot time
+  service: name=docker state=started enabled=yes
+
+- name: enable Docker proxy (if proxy is enabled)
+  command: cp /etc/profile.d/proxy.sh /etc/sysconfig/docker removes=/etc/profile.d/proxy.sh
+  notify: restart docker
+
+- name: disable Docker proxy (if proxy is absent)
+  shell: echo '#/etc/sysconfig/docker' > /etc/sysconfig/docker creates=/etc/profile.d/proxy.sh
+  notify: restart docker
